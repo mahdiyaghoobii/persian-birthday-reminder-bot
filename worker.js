@@ -433,12 +433,16 @@ async function sendMessage(env, chatId, text, keyboard = null, messageEffectId =
   if (messageEffectId) payload.message_effect_id = messageEffectId;
   
   const url = `${TELEGRAM_API}${env.BOT_TOKEN}/sendMessage`;
-  await fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  
+  // اضافه کن: خواندن response body
+  await response.json();
 }
+
 
 async function editMessage(env, chatId, messageId, text, keyboard = null) {
   const payload = {
@@ -450,31 +454,43 @@ async function editMessage(env, chatId, messageId, text, keyboard = null) {
   if (keyboard) payload.reply_markup = keyboard;
   
   const url = `${TELEGRAM_API}${env.BOT_TOKEN}/editMessageText`;
-  await fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  
+  // اضافه کن: خواندن response body
+  await response.json();
 }
+
 
 async function deleteMessage(env, chatId, messageId) {
   const url = `${TELEGRAM_API}${env.BOT_TOKEN}/deleteMessage`;
-  await fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: chatId, message_id: messageId }),
   });
+  
+  // اضافه کن: خواندن response body
+  await response.json();
 }
+
 
 async function answerCallbackQuery(env, callbackQueryId, text = null) {
   const url = `${TELEGRAM_API}${env.BOT_TOKEN}/answerCallbackQuery`;
   const payload = { callback_query_id: callbackQueryId };
   if (text) payload.text = text;
-  await fetch(url, {
+  
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  
+  // اضافه کن: خواندن response body
+  await response.json();
 }
 
 // ========== Keyboard Functions ==========
@@ -1919,6 +1935,52 @@ async function handleCallbackQuery(env, callbackQuery) {
       const text = "🔍 <b>جستجوی کاربر</b>\n\nID کاربر یا نام تولد را وارد کنید:";
       await editMessage(env, chatId, messageId, text, getBackToMainKeyboard());
       await updateUserState(env, userId, "waiting_user_search", {});
+    } else if (data === "list_users") {
+    // اگر این بخش هنوز نیست، اضافه کن
+    const users = await getAllUsers(env);
+    let text = `👥 لیست کاربران\n\n📊 تعداد کل: ${users.length}\n\n`;
+    
+    for (const u of users.slice(0, 50)) {
+      text += `👤 ${u.user_id}${u.is_blocked ? " 🔒" : ""}\n`;
+      text += `📅 ${new Date(u.created_at).toLocaleDateString("fa-IR")}\n`;
+      text += `────────\n`;
+    }
+    
+    if (users.length > 50) {
+      text += `\n... و ${users.length - 50} کاربر دیگر`;
+    }
+    
+    await editMessage(env, chatId, messageId, text, getBackToMainKeyboard());
+    } else if (data === "full_stats") {
+    // ⭐ اضافه کردن handler آمار کامل
+    const totalUsers = await getUsersCount(env);
+    const activeUsers7d = await getActiveUsersCount(env, 7);
+    const activeUsers30d = await getActiveUsersCount(env, 30);
+    
+    // آمار تولدها
+    const allBirthdays = await getAllUpcomingBirthdays(env);
+    const totalBirthdays = allBirthdays.length;
+    
+    // آمار یادآوری‌ها
+    const allReminders = await getAllUpcomingReminders(env);
+    const totalReminders = allReminders.length;
+    
+    // محاسبه تولدهای این ماه
+    const today = getTodayJalali();
+    const thisMonthBirthdays = allBirthdays.filter(b => b.month === today.month).length;
+    
+    let text = `📊 آمار کامل ربات\n\n`;
+    text += `👥 کاربران:\n`;
+    text += `• کل کاربران: ${totalUsers}\n`;
+    text += `• فعال (7 روز): ${activeUsers7d}\n`;
+    text += `• فعال (30 روز): ${activeUsers30d}\n\n`;
+    text += `🎂 تولدها:\n`;
+    text += `• کل تولدها: ${totalBirthdays}\n`;
+    text += `• تولدهای این ماه: ${thisMonthBirthdays}\n\n`;
+    text += `📝 یادآوری‌ها:\n`;
+    text += `• کل یادآوری‌ها: ${totalReminders}\n`;
+    
+    await editMessage(env, chatId, messageId, text, getBackToMainKeyboard());
     }
   }
 }

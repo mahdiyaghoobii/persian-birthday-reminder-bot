@@ -1154,14 +1154,24 @@ async function handleListBirthdays(env, chatId, userId, messageId = null, page =
 
   const paginationRow = [];
   if (page > 1) {
-    paginationRow.push({ text: "⬅️ قبلی", callback_data: `birthdayspage${page - 1}` });
+    paginationRow.push({
+      text: "⬅️ قبلی",
+      callback_data: `birthdays_page_${page - 1}`,
+    });
   }
   if (totalPages > 1) {
-    paginationRow.push({ text: `${page}/${totalPages}`, callback_data: "noop" });
+    paginationRow.push({
+      text: `${page}/${totalPages}`,
+      callback_data: "noop",
+    });
   }
   if (page < totalPages) {
-    paginationRow.push({ text: "بعدی ➡️", callback_data: `birthdayspage${page + 1}` });
+    paginationRow.push({
+      text: "بعدی ➡️",
+      callback_data: `birthdays_page_${page + 1}`,
+    });
   }
+
   if (paginationRow.length > 0) {
     buttons.push(paginationRow);
   }
@@ -1369,17 +1379,24 @@ async function handleListReminders(env, chatId, userId, messageId = null, page =
 
   const paginationRow = [];
   if (page > 1) {
-    paginationRow.push({ text: "⬅️ قبلی", callback_data: `reminderspage${page - 1}` });
+    paginationRow.push({
+      text: "⬅️ قبلی",
+      callback_data: `reminders_page_${page - 1}`,
+    });
   }
   if (totalPages > 1) {
-    paginationRow.push({ text: `${page}/${totalPages}`, callback_data: "noop" });
+    paginationRow.push({
+      text: `${page}/${totalPages}`,
+      callback_data: "noop",
+    });
   }
   if (page < totalPages) {
-    paginationRow.push({ text: "بعدی ➡️", callback_data: `reminderspage${page + 1}` });
+    paginationRow.push({
+      text: "بعدی ➡️",
+      callback_data: `reminders_page_${page + 1}`,
+    });
   }
-  if (paginationRow.length > 0) {
-    buttons.push(paginationRow);
-  }
+
 
   buttons.push([{ text: "🔙 بازگشت", callback_data: "backtomain" }]);
 

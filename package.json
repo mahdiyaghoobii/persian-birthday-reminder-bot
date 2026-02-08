@@ -1,0 +1,20 @@
+{
+  "name": "birthday-bot",
+  "version": "1.0.0",
+  "description": "Telegram Birthday Bot with Persian Calendar",
+  "main": "worker.js",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "birthday",
+    "cloudflare-workers",
+    "persian-calendar"
+  ],
+  "author": "",
+  "license": "MIT"
+}

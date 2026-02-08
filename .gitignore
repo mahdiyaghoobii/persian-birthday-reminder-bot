@@ -1,0 +1,4 @@
+/.wrangler
+/migration_safe.sql
+/node_modules
+/wrangler.toml

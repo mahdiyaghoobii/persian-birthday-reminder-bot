@@ -1159,7 +1159,7 @@ async function handleListBirthdays(env, chatId, userId, messageId = null, page =
 
     buttons.push([{
       text: label,
-      callback_data: `view${b.id}`
+  callback_data: `view_${b.id}`
     }]);
   }
 
@@ -1385,8 +1385,8 @@ async function handleListReminders(env, chatId, userId, messageId = null, page =
 
     buttons.push([{
       text: label,
-      callback_data: `viewreminder${r.id}`
-    }]);
+    callback_data: `view_reminder_${r.id}`
+      }]);
   }
 
   const paginationRow = [];

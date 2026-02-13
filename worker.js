@@ -506,11 +506,23 @@ function getMainMenuKeyboard() {
   };
 }
 
-function getBackToMainKeyboard() {
+function getBackToMainKeyboard(isAdminContext = false) {
+  if (isAdminContext) {
+    return {
+      inline_keyboard: [[{ text: "🔙 بازگشت به پنل ادمین", callback_data: "back_to_admin" }]],
+    };
+  }
   return {
     inline_keyboard: [[{ text: "🏠 بازگشت به منو", callback_data: "back_to_main" }]],
   };
 }
+
+function getBackToAdminKeyboard() {
+  return {
+    inline_keyboard: [[{ text: "🔙 بازگشت به پنل ادمین", callback_data: "back_to_admin" }]],
+  };
+}
+
 
 function getSkipKeyboard() {
   return {
@@ -1058,34 +1070,33 @@ async function handleTextMessage(env, chatId, userId, messageId, text) {
 
   if (user.state === "waiting_user_search" && isAdmin(userId)) {
     const users = await searchUsers(env, text);
-    
     if (users.length === 0) {
       await sendMessage(
         env,
         chatId,
         "❌ کاربری یافت نشد.",
-        getBackToMainKeyboard()
+        getBackToAdminKeyboard()  // تغییر این خط
       );
       await updateUserState(env, userId, "idle", {});
       return;
     }
-    
-    let resultText = `🔍 <b>نتایج جستجو</b>\n\nتعداد: ${users.length}\n\n`;
-    
+
+    let resultText = `🔍 نتایج جستجو\n\nتعداد: ${users.length}\n\n`;
     for (const u of users.slice(0, 20)) {
       resultText += `👤 ${u.user_id}${u.is_blocked ? " 🔒" : ""}\n`;
       resultText += `📅 عضویت: ${new Date(u.created_at).toLocaleDateString("fa-IR")}\n`;
       resultText += `────────\n`;
     }
-    
+
     if (users.length > 20) {
       resultText += `\n... و ${users.length - 20} کاربر دیگر`;
     }
-    
-    await sendMessage(env, chatId, resultText, getBackToMainKeyboard());
+
+    await sendMessage(env, chatId, resultText, getBackToAdminKeyboard());
     await updateUserState(env, userId, "idle", {});
     return;
   }
+
 
   // اگر در حالت idle باشد و پیام تصادفی بفرستد
   await sendMessage(
@@ -1176,8 +1187,9 @@ async function handleListBirthdays(env, chatId, userId, messageId = null, page =
     buttons.push(paginationRow);
   }
 
-  buttons.push([{ text: "🔙 بازگشت", callback_data: "backtomain" }]);
-
+  buttons.push([{ text: "🔙 بازگشت", callback_data: "back_to_main" }]);
+  
+  
   const keyboard = { inline_keyboard: buttons };
 
   const headerText = "<b>لیست تولد ها 🎂</b>"; // فقط عنوان کوتاه، بدون تکرار جزئیات هر مورد
@@ -1398,7 +1410,7 @@ async function handleListReminders(env, chatId, userId, messageId = null, page =
   }
 
 
-  buttons.push([{ text: "🔙 بازگشت", callback_data: "backtomain" }]);
+  buttons.push([{ text: "🔙 بازگشت", callback_data: "back_to_main" }]);
 
   const keyboard = { inline_keyboard: buttons };
 
@@ -1905,9 +1917,15 @@ async function handleCallbackQuery(env, callbackQuery) {
     const birthdayId = parseInt(data.split("_")[2]);
     await handleConfirmDelete(env, chatId, userId, messageId, birthdayId);
   } else if (data === "back_to_main") {
-    await updateUserState(env, userId, "idle", {});
-    const text = "🏠 <b>منوی اصلی</b>\n\nیک گزینه را انتخاب کنید:";
-    await editMessage(env, chatId, messageId, text, getMainMenuKeyboard());
+  await updateUserState(env, userId, "idle", {});
+  const text = "🏠 منوی اصلی\n\nیک گزینه را انتخاب کنید:";
+  await editMessage(env, chatId, messageId, text, getMainMenuKeyboard());
+  } else if (data === "back_to_admin") {
+    // handler برای بازگشت به پنل ادمین
+    if (isAdmin(userId)) {
+      await updateUserState(env, userId, "idle", {});
+      await handleAdminPanel(env, chatId, messageId);
+    }
   } else if (data === "noop") {
     // Do nothing
   }
@@ -1915,8 +1933,8 @@ async function handleCallbackQuery(env, callbackQuery) {
   // ========== Admin Panel ==========
   if (isAdmin(userId)) {
     if (data === "broadcast") {
-      const text = "📢 <b>ارسال پیام همگانی</b>\n\nپیام خود را وارد کنید:";
-      await editMessage(env, chatId, messageId, text, getBackToMainKeyboard());
+      const text = "📢 ارسال پیام همگانی\n\nپیام خود را وارد کنید:";
+      await editMessage(env, chatId, messageId, text, getBackToAdminKeyboard());  // تغییر این خط
       await updateUserState(env, userId, "waiting_broadcast_message", {});
     } else if (data === "send_broadcast") {
       if (user.state === "confirm_broadcast" && stateData.broadcastMessage) {
@@ -1950,24 +1968,24 @@ async function handleCallbackQuery(env, callbackQuery) {
       await handleAdminPanel(env, chatId, messageId);
     } else if (data === "search_user") {
       const text = "🔍 <b>جستجوی کاربر</b>\n\nID کاربر یا نام تولد را وارد کنید:";
-      await editMessage(env, chatId, messageId, text, getBackToMainKeyboard());
+      await editMessage(env, chatId, messageId, text, getBackToAdminKeyboard());  // تغییر این خط      
       await updateUserState(env, userId, "waiting_user_search", {});
     } else if (data === "list_users") {
-    // اگر این بخش هنوز نیست، اضافه کن
-    const users = await getAllUsers(env);
-    let text = `👥 لیست کاربران\n\n📊 تعداد کل: ${users.length}\n\n`;
-    
-    for (const u of users.slice(0, 50)) {
-      text += `👤 ${u.user_id}${u.is_blocked ? " 🔒" : ""}\n`;
-      text += `📅 ${new Date(u.created_at).toLocaleDateString("fa-IR")}\n`;
-      text += `────────\n`;
-    }
-    
-    if (users.length > 50) {
-      text += `\n... و ${users.length - 50} کاربر دیگر`;
-    }
-    
-    await editMessage(env, chatId, messageId, text, getBackToMainKeyboard());
+      const users = await getAllUsers(env);
+      let text = `👥 لیست کاربران\n\n📊 تعداد کل: ${users.length}\n\n`;
+      
+      for (const u of users.slice(0, 50)) {
+        text += `👤 ${u.user_id}${u.is_blocked ? " 🔒" : ""}\n`;
+        text += `📅 ${new Date(u.created_at).toLocaleDateString("fa-IR")}\n`;
+        text += `────────\n`;
+      }
+      
+      if (users.length > 50) {
+        text += `\n... و ${users.length - 50} کاربر دیگر`;
+      }
+      
+      // تغییر این خط:
+      await editMessage(env, chatId, messageId, text, getBackToAdminKeyboard());
     } else if (data === "full_stats") {
     // ⭐ اضافه کردن handler آمار کامل
     const totalUsers = await getUsersCount(env);
@@ -1997,7 +2015,7 @@ async function handleCallbackQuery(env, callbackQuery) {
     text += `📝 یادآوری‌ها:\n`;
     text += `• کل یادآوری‌ها: ${totalReminders}\n`;
     
-    await editMessage(env, chatId, messageId, text, getBackToMainKeyboard());
+    await editMessage(env, chatId, messageId, text, getBackToAdminKeyboard());
     }
   }
 }

@@ -497,11 +497,17 @@ async function answerCallbackQuery(env, callbackQueryId, text = null) {
 function getMainMenuKeyboard() {
   return {
     inline_keyboard: [
-      [{ text: "➕ اضافه کردن تولد", callback_data: "add_birthday" }],
-      [{ text: "📋 لیست تولدها", callback_data: "list_birthdays" }],
-      [{ text: "🔔 اضافه کردن یادآوری", callback_data: "add_reminder" }],
-      [{ text: "📝 لیست یادآوری‌ها", callback_data: "list_reminders" }],
-      [{ text: "👤 ثبت تولد من", callback_data: "my_birthday" }],
+      [
+        { text: "➕ اضافه کردن تولد", callback_data: "add_birthday", style: 'success', }, 
+        { text: "📋 لیست تولدها", callback_data: "list_birthdays", style: 'primary', }
+      ],
+      [
+        { text: "🔔 اضافه کردن یادآوری", callback_data: "add_reminder", style: 'success', },
+        { text: "📝 لیست یادآوری‌ها", callback_data: "list_reminders", style: 'primary', }
+      ],
+      [
+        { text: "👤 ثبت تولد من", callback_data: "my_birthday", style: 'success', }
+      ],
     ],
   };
 }
@@ -509,17 +515,17 @@ function getMainMenuKeyboard() {
 function getBackToMainKeyboard(isAdminContext = false) {
   if (isAdminContext) {
     return {
-      inline_keyboard: [[{ text: "🔙 بازگشت به پنل ادمین", callback_data: "back_to_admin" }]],
+      inline_keyboard: [[{ text: "🔙 بازگشت به پنل ادمین", callback_data: "back_to_admin", style: 'danger' }]],
     };
   }
   return {
-    inline_keyboard: [[{ text: "🏠 بازگشت به منو", callback_data: "back_to_main" }]],
+    inline_keyboard: [[{ text: "🏠 بازگشت به منو", callback_data: "back_to_main", style: 'danger' }]],
   };
 }
 
 function getBackToAdminKeyboard() {
   return {
-    inline_keyboard: [[{ text: "🔙 بازگشت به پنل ادمین", callback_data: "back_to_admin" }]],
+    inline_keyboard: [[{ text: "🔙 بازگشت به پنل ادمین", callback_data: "back_to_admin", style: 'danger' }]],
   };
 }
 
@@ -527,8 +533,8 @@ function getBackToAdminKeyboard() {
 function getSkipKeyboard() {
   return {
     inline_keyboard: [
-      [{ text: "⏭ رد کردن", callback_data: "skip" }],
-      [{ text: "🏠 بازگشت به منو", callback_data: "back_to_main" }]
+      [{ text: "⏭ رد کردن", callback_data: "skip", style: 'primary' }],
+      [{ text: "🏠 بازگشت به منو", callback_data: "back_to_main", style: 'danger' }]
     ],
   };
 }
@@ -545,7 +551,7 @@ function getMonthsKeyboard() {
     }
     buttons.push(row);
   }
-  buttons.push([{ text: "🏠 بازگشت به منو", callback_data: "back_to_main" }]);
+  buttons.push([{ text: "🏠 بازگشت به منو", callback_data: "back_to_main", style: 'danger' }]);
   return { inline_keyboard: buttons };
 }
 
@@ -554,17 +560,17 @@ function getPaginationKeyboard(currentPage, totalPages, prefix) {
   const row = [];
   
   if (currentPage > 1) {
-    row.push({ text: "◀️ قبلی", callback_data: `${prefix}_page_${currentPage - 1}` });
+    row.push({ text: "◀️ قبلی", callback_data: `${prefix}_page_${currentPage - 1}`, style: 'primary' });
   }
   
   row.push({ text: `${currentPage} / ${totalPages}`, callback_data: "noop" });
   
   if (currentPage < totalPages) {
-    row.push({ text: "بعدی ▶️", callback_data: `${prefix}_page_${currentPage + 1}` });
+    row.push({ text: "بعدی ▶️", callback_data: `${prefix}_page_${currentPage + 1}`, style: 'primary' });
   }
   
   buttons.push(row);
-  buttons.push([{ text: "🏠 بازگشت به منو", callback_data: "back_to_main" }]);
+  buttons.push([{ text: "🏠 بازگشت به منو", callback_data: "back_to_main", style: 'danger' }]);
   
   return { inline_keyboard: buttons };
 }
@@ -612,8 +618,8 @@ async function handleMyBirthday(env, chatId, userId, messageId = null) {
     
     const keyboard = {
       inline_keyboard: [
-        [{ text: "✏️ ویرایش تولد من", callback_data: "edit_my_birthday" }],
-        [{ text: "🏠 بازگشت به منو", callback_data: "back_to_main" }]
+        [{ text: "✏️ ویرایش تولد من", callback_data: "edit_my_birthday", style: 'primary' }],
+        [{ text: "🏠 بازگشت به منو", callback_data: "back_to_main", style: 'danger' }]
       ]
     };
     
@@ -1058,8 +1064,8 @@ async function handleTextMessage(env, chatId, userId, messageId, text) {
     const keyboard = {
       inline_keyboard: [
         [
-          { text: "✅ بله، ارسال شود", callback_data: "send_broadcast" },
-          { text: "❌ لغو", callback_data: "cancel_broadcast" }
+          { text: "✅ بله، ارسال شود", callback_data: "send_broadcast", style: 'success' },
+          { text: "❌ لغو", callback_data: "cancel_broadcast", style: 'danger' }
         ]
       ]
     };
@@ -1168,6 +1174,7 @@ async function handleListBirthdays(env, chatId, userId, messageId = null, page =
     paginationRow.push({
       text: "⬅️ قبلی",
       callback_data: `birthdays_page_${page - 1}`,
+      style: 'primary'
     });
   }
   if (totalPages > 1) {
@@ -1180,6 +1187,7 @@ async function handleListBirthdays(env, chatId, userId, messageId = null, page =
     paginationRow.push({
       text: "بعدی ➡️",
       callback_data: `birthdays_page_${page + 1}`,
+      style: 'primary'
     });
   }
 
@@ -1240,8 +1248,10 @@ async function handleViewBirthday(env, chatId, userId, messageId, birthdayId) {
   
   const keyboard = {
     inline_keyboard: [
-      [{ text: "✏️ ویرایش", callback_data: `edit_${birthday.id}` }],
-      [{ text: "🗑 حذف", callback_data: `delete_${birthday.id}` }],
+      [
+        { text: "✏️ ویرایش", callback_data: `edit_${birthday.id}`, style: 'primary' },
+        { text: "🗑 حذف", callback_data: `delete_${birthday.id}`, style: 'danger' }
+      ],
       [{ text: "🔙 بازگشت به لیست", callback_data: "list_birthdays" }]
     ]
   };
@@ -1267,9 +1277,11 @@ async function handleEditMenu(env, chatId, userId, messageId, birthdayId) {
   const keyboard = {
     inline_keyboard: [
       [{ text: "👤 نام", callback_data: `edit_name_${birthday.id}` }],
-      [{ text: "📅 ماه", callback_data: `edit_month_${birthday.id}` }],
-      [{ text: "🗓 روز", callback_data: `edit_day_${birthday.id}` }],
-      [{ text: "🎂 سال تولد", callback_data: `edit_year_${birthday.id}` }],
+      [
+        { text: "📅 ماه", callback_data: `edit_month_${birthday.id}` },
+        { text: "🗓 روز", callback_data: `edit_day_${birthday.id}` },
+        { text: "🎂 سال تولد", callback_data: `edit_year_${birthday.id}` },
+      ],
       [{ text: "📝 توضیحات", callback_data: `edit_desc_${birthday.id}` }],
       [{ text: "🔙 بازگشت", callback_data: `view_${birthday.id}` }]
     ]
@@ -1295,8 +1307,10 @@ async function handleDeleteConfirm(env, chatId, userId, messageId, birthdayId) {
   
   const keyboard = {
     inline_keyboard: [
-      [{ text: "✅ بله، حذف شود", callback_data: `confirm_delete_${birthday.id}` }],
-      [{ text: "❌ لغو", callback_data: `view_${birthday.id}` }]
+      [
+        { text: "✅ بله، حذف شود", callback_data: `confirm_delete_${birthday.id}`, style: 'success' },
+        { text: "❌ لغو", callback_data: `view_${birthday.id}`, style: 'danger' }
+      ]
     ]
   };
   
@@ -1394,6 +1408,7 @@ async function handleListReminders(env, chatId, userId, messageId = null, page =
     paginationRow.push({
       text: "⬅️ قبلی",
       callback_data: `reminders_page_${page - 1}`,
+      style: 'primary'
     });
   }
   if (totalPages > 1) {
@@ -1406,6 +1421,7 @@ async function handleListReminders(env, chatId, userId, messageId = null, page =
     paginationRow.push({
       text: "بعدی ➡️",
       callback_data: `reminders_page_${page + 1}`,
+      style: 'primary'
     });
   }
 
@@ -1456,8 +1472,10 @@ async function handleViewReminder(env, chatId, userId, messageId, reminderId) {
   
   const keyboard = {
     inline_keyboard: [
-      [{ text: "✏️ ویرایش", callback_data: `edit_reminder_${reminder.id}` }],
-      [{ text: "🗑 حذف", callback_data: `delete_reminder_${reminder.id}` }],
+      [
+        { text: "✏️ ویرایش", callback_data: `edit_reminder_${reminder.id}`, style: 'primary' },
+        { text: "🗑 حذف", callback_data: `delete_reminder_${reminder.id}`, style: 'danger' }
+      ],
       [{ text: "🔙 بازگشت به لیست", callback_data: "list_reminders" }]
     ]
   };
@@ -1483,8 +1501,10 @@ async function handleEditReminderMenu(env, chatId, userId, messageId, reminderId
   const keyboard = {
     inline_keyboard: [
       [{ text: "🔔 نام", callback_data: `edit_reminder_name_${reminder.id}` }],
-      [{ text: "📅 ماه", callback_data: `edit_reminder_month_${reminder.id}` }],
-      [{ text: "🗓 روز", callback_data: `edit_reminder_day_${reminder.id}` }],
+      [
+        { text: "📅 ماه", callback_data: `edit_reminder_month_${reminder.id}` },
+        { text: "🗓 روز", callback_data: `edit_reminder_day_${reminder.id}` }
+      ],
       [{ text: "📝 توضیحات", callback_data: `edit_reminder_desc_${reminder.id}` }],
       [{ text: "🔙 بازگشت", callback_data: `view_reminder_${reminder.id}` }]
     ]
@@ -1510,8 +1530,10 @@ async function handleDeleteReminderConfirm(env, chatId, userId, messageId, remin
   
   const keyboard = {
     inline_keyboard: [
-      [{ text: "✅ بله، حذف شود", callback_data: `confirm_delete_reminder_${reminder.id}` }],
-      [{ text: "❌ لغو", callback_data: `view_reminder_${reminder.id}` }]
+      [
+        { text: "✅ بله، حذف شود", callback_data: `confirm_delete_reminder_${reminder.id}`, style: 'success' }, 
+        { text: "❌ لغو", callback_data: `view_reminder_${reminder.id}`, style: 'danger' }
+      ]
     ]
   };
   
@@ -1561,7 +1583,7 @@ async function handleAdminPanel(env, chatId, messageId = null) {
       [{ text: "🔍 جستجوی کاربر", callback_data: "search_user" }],
       [{ text: "👥 لیست کاربران", callback_data: "list_users" }],
       [{ text: "📊 آمار کامل", callback_data: "full_stats" }],
-      [{ text: "🏠 بازگشت به منو", callback_data: "back_to_main" }]
+      [{ text: "🏠 بازگشت به منو", callback_data: "back_to_main", style: 'danger' }]
     ]
   };
   
